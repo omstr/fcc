@@ -111,7 +111,7 @@ app.post('/api/users', (req, res)=>{
 app.post('/api/users/:_id/exercises', (req, res)=> {
 
   let {description, duration, date} = req.body;
-
+  console.log("req.body: ", req.body)
   if (!description || !duration) {
     return res.json({ error: "Invalid Parameters" });
   }
@@ -124,7 +124,7 @@ app.post('/api/users/:_id/exercises', (req, res)=> {
       return res.json({error: "Invalid duration"});
     }
   }
-  // const id = req.body[':_id'];
+  // const id = req.body[':_id']; 1 LINE OF CODE RUINED EVERYTHING AHAHAHAHAHAHHAH
   const id = req.params._id;
 
   if(!id){
@@ -157,8 +157,14 @@ app.post('/api/users/:_id/exercises', (req, res)=> {
       }
     }
     console.log(exercise);
-    // exercise
-    res.json(exercise);
+    
+    res.json({
+      _id: id,                       
+      username: exercise.username,   
+      description: exercise.description,
+      duration: exercise.duration,
+      date: exercise.date            
+    });
     // await Exercise.findByIdAndDelete(id);
   })
 })

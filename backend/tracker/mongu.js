@@ -17,9 +17,6 @@ const exerciseSchema = new mongoose.Schema({
         type: String,
         default: (new Date).toDateString()
     }
-    // _id: {
-    //     type: String
-    // }
 }, {versionKey: false})
 
 const exerciseLogSchema = new mongoose.Schema({
@@ -166,16 +163,15 @@ const addExercise = async ({id, description, duration, date}, done) => {
         // _id: id
     })
     
-    pushLogEntry({ id, username, description, duration, date }, (err, updatedLog) => {
-        // if (err) return done(null, false, {code: "LOGS"});
+    pushLogEntry({ id, username, description, duration, date }, async (err, updatedLog) => {
+        if (err) return done(null, false, {code: "LOGS"});
+        const saved = await exercise.save();
+        if(!saved){
+            done(saved);
+            return;
+        }
+        done(null, saved);
     });
-
-    const saved = await exercise.save();
-    if(!saved){
-        done(saved);
-        return;
-    }
-    done(null, saved);
 }
 
 const fetchLogs = async ({id, from, to, limit}, done) => {
