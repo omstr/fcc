@@ -98,24 +98,35 @@ app.post('/api/users', (req, res)=>{
 
 app.post('/api/users/:_id/exercises', (req, res)=> {
 
-  if(!req.body?.description || !req.body?.duration){
+  if(!req.body.description === '' || req.body.duration === ''){
     return res.json({error: "Invalid Parameters"});
   }
   let {description, duration, date} = req.body;
+  
+  duration = parseInt(duration, 10);
+  console.log("duration: ", duration);
+  if(!Number.isInteger(duration)){
+    duration = Number(duration);
+    if(isNaN(duration)){
+      return res.json({error: "Invalid duration"});
+    }
+  }
   const id = req.body[':_id'];
   if(!id){
     return res.json({error: "Invalid Id"});
   }
-  console.log("req body: ", req.body);
+  // console.log("req body: ", req.body);
   console.log("id: ", id);
 
   if(!date){ 
     const now = new Date()
-    date = `${String(now.getFullYear())}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(String(now.getDay()).padStart(2, '0'))}`;
+    date = now.toDateString();
   }else{
     const nan = isNaN(Date.parse(date));
     if(nan){
       return res.json({error: "Invalid Date", message: `${date} is not valid`})
+    }else{
+      date = new Date(date).toDateString();
     }
   }
 
@@ -136,10 +147,6 @@ app.post('/api/users/:_id/exercises', (req, res)=> {
     // await Exercise.findByIdAndDelete(id);
   })
 })
-
-const now = new Date()
-date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(String(now.getDay()).padStart(2, '0'))}`;
-console.log("Date: ", date);
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)

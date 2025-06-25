@@ -15,6 +15,7 @@ const exerciseSchema = new mongoose.Schema({
     },
     date: {
         type: String,
+        default: (new Date).toDateString()
     }
     // _id: {
     //     type: String
@@ -30,6 +31,7 @@ const exerciseLogSchema = new mongoose.Schema({
     },
     date: {
         type: String,
+        default: (new Date).toDateString()
     },
 }, { _id: false });
 
