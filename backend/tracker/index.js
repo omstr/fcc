@@ -22,6 +22,8 @@ const User = mongu.UserModel;
 const Exercise = mongu.ExerciseModel;
 const Log = mongu.LogModel;
 
+const validateDate = (date) => isNaN(Date.parse(date));
+
 app.get('/api/users', (req,res)=>{
   mongu.fetchUsers((err, users)=>{
     if(err){
@@ -34,14 +36,18 @@ app.get('/api/users', (req,res)=>{
 })
 
 app.get('/api/users/:_id/logs', async (req, res)=>{
-  console.log("req params: ", req.params);
+  console.log("req query: ", req.query);
   const id = req.params._id;
   if(!id){
     return res.json({error: "Invalid User ID"});
   }
-  // console.log(id)
+  let {from, to, limit} = req.query;
+  if(!limit) limit = 10;
+  if(validateDate(from)){ from = null} else{ from = Date.parse(from) }
+  if(validateDate(to)){ to = null} else{ to = Date.parse(to) }
+  console.log("From: ", from, " to: ", to);
 
-  mongu.fetchLogs(id, (err, user, info)=>{
+  mongu.fetchLogs({id, from, to, limit}, (err, user, info)=>{
     if(err){
       return res.json({error: err});
     }

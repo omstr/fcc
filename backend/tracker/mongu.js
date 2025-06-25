@@ -44,6 +44,9 @@ const userSchema = new mongoose.Schema({
     // }
 }, {versionKey: false})
 const logSchema = new mongoose.Schema({
+    _id: {
+        type: String
+    },
     username: {
         type: String
     },
@@ -53,9 +56,6 @@ const logSchema = new mongoose.Schema({
     log: {
         type: [exerciseLogSchema]
     },
-    _id: {
-        type: String
-    }
 }, {versionKey: false})
 
 let Exercise = mongoose.model("Exercise", exerciseSchema);
@@ -178,17 +178,35 @@ const addExercise = async ({id, description, duration, date}, done) => {
     done(null, saved);
 }
 
-const fetchLogs = async (id, done) => {
+const fetchLogs = async ({id, from, to, limit}, done) => {
     const user = await Log.findById(id).exec();
     if(!user){
         return done(null, false, {code: "USER"})
     }
-    // const logs = user.log;
-    // if(!logs || !logs?.length){
-    //     return done(null, false, {code: "LOGS"});
-    // }
+    const logs = await Log.find({}).select("log").limit(limit).exec();
+    let filteredLogs = []
+    if(from && to){
+        //nested for loop to loop logs within item.
+        logs.forEach((item)=>{
+            item.log.forEach((el)=>{
+                console.log("log: ", el);
+                const date = Date.parse(el?.date);
+                console.log("date: ", date);
+                if(isNaN(date)){
+                    return null;
+                }
+                if(date >= from && date <= to){
+                filteredLogs.push(item);
+                }
+                return date >= from && date <= to
+            })
+        })
+        console.log("filteredLogs: ", filteredLogs);
+    }
 
-    done(null, user);
+    const logsToUse = filteredLogs.length ? filteredLogs : logs;
+    const obj = {_id: id, username: user.username, count: user.count, log: logsToUse}
+    done(null, obj);
 }
 
 exports.ExerciseModel = Exercise;
