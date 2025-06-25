@@ -14,12 +14,25 @@ const exerciseSchema = new mongoose.Schema({
         type: Number
     },
     date: {
-        type: Date
-    },
+        type: String,
+    }
     // _id: {
     //     type: String
     // }
 }, {versionKey: false})
+
+const exerciseLogSchema = new mongoose.Schema({
+    description: {
+        type: String
+    },
+    duration: {
+        type: Number
+    },
+    date: {
+        type: String,
+    },
+}, { _id: false });
+
 const userSchema = new mongoose.Schema({
     username: {
         type: String
@@ -36,18 +49,7 @@ const logSchema = new mongoose.Schema({
         type: Number
     },
     log: {
-        type: [{
-            description: {
-                type: String
-            },
-            duration: {
-                type: Number
-            },
-            date: {
-                type: Date,
-                // default: Date.now()
-            }
-        }]
+        type: [exerciseLogSchema]
     },
     _id: {
         type: String
@@ -55,6 +57,7 @@ const logSchema = new mongoose.Schema({
 }, {versionKey: false})
 
 let Exercise = mongoose.model("Exercise", exerciseSchema);
+let ExerciseLog = mongoose.model("ExerciseLog", exerciseLogSchema);
 let User = mongoose.model("User", userSchema);
 let Log = mongoose.model("Log", logSchema);
 
@@ -88,13 +91,13 @@ const fetchUsers = async (done) => {
     done(null, users);
 }
 
-const createLogEntry = async ({id, username, description, duration, date}, done) => {
+const createLogEntry = async ({id, username}, done) => {
     const logUser = await Log.findById(id).exec();
     // console.log("logUser: ", logUser);
     if(logUser){
         done(null, logUser);
     }
-    
+
     const log = new Log({
         username,
         count: 0,
@@ -109,8 +112,8 @@ const createLogEntry = async ({id, username, description, duration, date}, done)
     return done(null, logSave);
 
 }
-const createOrPushLog = async ({id, username, description, duration, date}, done) => {
-    const exerciseLog = new Exercise({
+const pushLogEntry = async ({id, username, description, duration, date}, done) => {
+    const exerciseLog = new ExerciseLog({
         description,
         duration,
         date,
@@ -161,7 +164,7 @@ const addExercise = async ({id, description, duration, date}, done) => {
         // _id: id
     })
     
-    createOrPushLog({id, username, description, duration, date}, (err, data, info)=>{
+    pushLogEntry({id, username, description, duration, date}, (err, data, info)=>{
 
     })
 
@@ -187,11 +190,12 @@ const fetchLogs = async (id, done) => {
 }
 
 exports.ExerciseModel = Exercise;
+exports.ExerciseLog = ExerciseLog;
 exports.UserModel = User;
 exports.LogModel = Log;
 exports.createUser = createUser;
 exports.fetchUsers = fetchUsers;
 exports.addExercise = addExercise;
 exports.createLogEntry = createLogEntry;
-exports.createOrPushLog = createOrPushLog;
+exports.pushLogEntry = pushLogEntry;
 exports.fetchLogs = fetchLogs;

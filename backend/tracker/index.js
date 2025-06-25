@@ -111,7 +111,7 @@ app.post('/api/users/:_id/exercises', (req, res)=> {
 
   if(!date){ 
     const now = new Date()
-    date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(String(now.getDay()).padStart(2, '0'))}`;
+    date = `${String(now.getFullYear())}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(String(now.getDay()).padStart(2, '0'))}`;
   }else{
     const nan = isNaN(Date.parse(date));
     if(nan){
@@ -137,6 +137,9 @@ app.post('/api/users/:_id/exercises', (req, res)=> {
   })
 })
 
+const now = new Date()
+date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(String(now.getDay()).padStart(2, '0'))}`;
+console.log("Date: ", date);
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
