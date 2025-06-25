@@ -183,7 +183,7 @@ const fetchLogs = async ({id, from, to, limit}, done) => {
     if(!user){
         return done(null, false, {code: "USER"})
     }
-    const logs = await Log.find({}).select("log").limit(limit).exec();
+    const logs = await Log.findById(id).find({}).select("log").limit(limit).exec();
     let filteredLogs = []
     if(from && to){
         //nested for loop to loop logs within item.
