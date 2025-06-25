@@ -166,9 +166,9 @@ const addExercise = async ({id, description, duration, date}, done) => {
         // _id: id
     })
     
-    pushLogEntry({id, username, description, duration, date}, (err, data, info)=>{
-
-    })
+    pushLogEntry({ id, username, description, duration, date }, (err, updatedLog) => {
+        // if (err) return done(null, false, {code: "LOGS"});
+    });
 
     const saved = await exercise.save();
     if(!saved){
@@ -183,24 +183,30 @@ const fetchLogs = async ({id, from, to, limit}, done) => {
     if(!user){
         return done(null, false, {code: "USER"})
     }
-    const logs = await Log.findById(id).select("log -_id").exec();
     
-    let filteredLogs = []
-    if(from && to){
-        filteredLogs = logs.log.filter((el)=>{
-            // console.log("log: ", el);
-            const date = Date.parse(el?.date);
-            if(isNaN(date)){
-                return false;
-            }
-            return date >= from && date <= to
-        })
-    }
+    let allLogs = user.log;
 
-    let logsToUse = filteredLogs.length ? filteredLogs : logs.log;
-    logsToUse = logsToUse.slice(0, limit);
-    console.log("logsToUse: ", logsToUse);
-    const obj = {_id: id, username: user.username, count: user.count, log: logsToUse}
+    if (from) {
+        allLogs = allLogs.filter(e => new Date(e.date) >= new Date(from));
+    }
+    if (to) {
+        allLogs = allLogs.filter(e => new Date(e.date) <= new Date(to))
+    };
+
+    if (limit) {
+        allLogs = allLogs.slice(0, parseInt(limit))
+    };
+
+    const log = allLogs.map(e => ({
+        description: e.description,
+        duration: e.duration,
+        date: e.date
+    }));
+    // let filteredLogs = []
+    //         return date >= from && date <= to
+   
+
+    const obj = {_id: id, username: user.username, count: user.count, log}
     done(null, obj);
 }
 

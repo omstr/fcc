@@ -42,7 +42,7 @@ app.get('/api/users/:_id/logs', async (req, res)=>{
     return res.json({error: "Invalid User ID"});
   }
   let {from, to, limit} = req.query;
-  if(!limit){limit = 10;}else{ limit = parseInt(limit)}
+  if(!limit){limit = null;}else{ limit = parseInt(limit)}
   if(validateDate(from)){ from = null} else{ from = Date.parse(from) }
   if(validateDate(to)){ to = null} else{ to = Date.parse(to) }
   console.log("From: ", from, " to: ", to, " limit: ", limit);
@@ -110,10 +110,11 @@ app.post('/api/users', (req, res)=>{
 
 app.post('/api/users/:_id/exercises', (req, res)=> {
 
-  if(!req.body.description === '' || req.body.duration === ''){
-    return res.json({error: "Invalid Parameters"});
-  }
   let {description, duration, date} = req.body;
+
+  if (!description || !duration) {
+    return res.json({ error: "Invalid Parameters" });
+  }
   
   duration = parseInt(duration, 10);
   console.log("duration: ", duration);
@@ -123,7 +124,9 @@ app.post('/api/users/:_id/exercises', (req, res)=> {
       return res.json({error: "Invalid duration"});
     }
   }
-  const id = req.body[':_id'];
+  // const id = req.body[':_id'];
+  const id = req.params._id;
+
   if(!id){
     return res.json({error: "Invalid Id"});
   }
