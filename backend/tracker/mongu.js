@@ -140,8 +140,8 @@ const pushLogEntry = async ({id, username, description, duration, date}, done) =
         return done(null, logSave);
     }
 
-    logUser.count += 1;
     logUser.log.push(exerciseLog);
+    logUser.count = logUser.log.length;
     console.log("logUser new log length: ", logUser.log?.length);
     await logUser.save();
     
@@ -183,26 +183,23 @@ const fetchLogs = async ({id, from, to, limit}, done) => {
     if(!user){
         return done(null, false, {code: "USER"})
     }
-    const logs = await Log.findById(id).select("log -_id").limit(limit).exec();
-    console.log("logs: ", logs);
+    const logs = await Log.findById(id).select("log -_id").exec();
+    
     let filteredLogs = []
     if(from && to){
-        let filteredLogs = logs.log.filter((el)=>{
-            console.log("log: ", el);
+        filteredLogs = logs.log.filter((el)=>{
+            // console.log("log: ", el);
             const date = Date.parse(el?.date);
-            console.log("date: ", date);
             if(isNaN(date)){
-                return null;
+                return false;
             }
-            // if(date >= from && date <= to){
-            // filteredLogs.push(item);
-            // }
             return date >= from && date <= to
         })
-        console.log("filteredLogs: ", filteredLogs);
     }
 
-    const logsToUse = filteredLogs.length ? filteredLogs : logs.log;
+    let logsToUse = filteredLogs.length ? filteredLogs : logs.log;
+    logsToUse = logsToUse.slice(0, limit);
+    console.log("logsToUse: ", logsToUse);
     const obj = {_id: id, username: user.username, count: user.count, log: logsToUse}
     done(null, obj);
 }

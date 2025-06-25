@@ -42,10 +42,10 @@ app.get('/api/users/:_id/logs', async (req, res)=>{
     return res.json({error: "Invalid User ID"});
   }
   let {from, to, limit} = req.query;
-  if(!limit) limit = 10;
+  if(!limit){limit = 10;}else{ limit = parseInt(limit)}
   if(validateDate(from)){ from = null} else{ from = Date.parse(from) }
   if(validateDate(to)){ to = null} else{ to = Date.parse(to) }
-  console.log("From: ", from, " to: ", to);
+  console.log("From: ", from, " to: ", to, " limit: ", limit);
 
   mongu.fetchLogs({id, from, to, limit}, (err, user, info)=>{
     if(err){
@@ -59,7 +59,13 @@ app.get('/api/users/:_id/logs', async (req, res)=>{
         return res.json({error: "No logs found"});
       }
     }
-    res.send(user);
+    // const response = {
+    //   id,
+    //   username: user.username,
+    //   count: user.log.length,
+    //   log: user.log
+    // };
+    res.json(user);
   })
 })
 
