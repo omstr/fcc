@@ -183,28 +183,26 @@ const fetchLogs = async ({id, from, to, limit}, done) => {
     if(!user){
         return done(null, false, {code: "USER"})
     }
-    const logs = await Log.findById(id).find({}).select("log").limit(limit).exec();
+    const logs = await Log.findById(id).select("log -_id").limit(limit).exec();
+    console.log("logs: ", logs);
     let filteredLogs = []
     if(from && to){
-        //nested for loop to loop logs within item.
-        logs.forEach((item)=>{
-            item.log.forEach((el)=>{
-                console.log("log: ", el);
-                const date = Date.parse(el?.date);
-                console.log("date: ", date);
-                if(isNaN(date)){
-                    return null;
-                }
-                if(date >= from && date <= to){
-                filteredLogs.push(item);
-                }
-                return date >= from && date <= to
-            })
+        let filteredLogs = logs.log.filter((el)=>{
+            console.log("log: ", el);
+            const date = Date.parse(el?.date);
+            console.log("date: ", date);
+            if(isNaN(date)){
+                return null;
+            }
+            // if(date >= from && date <= to){
+            // filteredLogs.push(item);
+            // }
+            return date >= from && date <= to
         })
         console.log("filteredLogs: ", filteredLogs);
     }
 
-    const logsToUse = filteredLogs.length ? filteredLogs : logs;
+    const logsToUse = filteredLogs.length ? filteredLogs : logs.log;
     const obj = {_id: id, username: user.username, count: user.count, log: logsToUse}
     done(null, obj);
 }
