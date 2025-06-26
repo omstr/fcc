@@ -17,6 +17,7 @@ app.get('/', (req, res) => {
 //4. 120 min to get to step 9 whilst fixing error messages with a new info callback parameter
 //5. 140 min to get up to 14 "user object" , i'm returning user: {....}. 
   // tried doing res.send() but it doesnt like that either
+//6. hours later.. req.body[id broke everything & #8 wanted the user's id. + fixed the date to work exclusively
 
 const User = mongu.UserModel;
 const Exercise = mongu.ExerciseModel;
